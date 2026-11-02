@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../../../core/theme/app_colors.dart';
+import '../../../cart/presentation/view_model/cart_cubit.dart';
+import '../../../cart/presentation/views/cart_screen.dart';
 import '../../data/models/product.dart';
 
 class ProductDetailsScreen extends StatelessWidget {
@@ -26,9 +30,15 @@ class ProductDetailsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const Icon(Icons.search, color: AppColors.blue),
-              const SizedBox(width: 18),
-              const Icon(Icons.shopping_cart_outlined, color: AppColors.blue),
+              IconButton(
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => const CartScreen()),
+                ),
+                icon: const Icon(
+                  Icons.shopping_cart_outlined,
+                  color: AppColors.blue,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -36,11 +46,10 @@ class ProductDetailsScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(13),
             child: SizedBox(
               height: 255,
-              width: double.infinity,
               child: Image.network(
                 product.imageCover,
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => const Center(
+                errorBuilder: (_, _, _) => const Center(
                   child: Icon(Icons.image_not_supported_outlined, size: 56),
                 ),
               ),
@@ -52,7 +61,7 @@ class ProductDetailsScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   product.title,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 17,
@@ -90,44 +99,6 @@ class ProductDetailsScreen extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(color: Color(0xFF77709B)),
           ),
-          const SizedBox(height: 15),
-          const Text(
-            'Size',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          Wrap(
-            spacing: 12,
-            children: [38, 39, 40, 41, 42]
-                .map(
-                  (size) => ChoiceChip(
-                    label: Text('$size'),
-                    selected: size == 40,
-                    selectedColor: AppColors.blue,
-                    labelStyle: TextStyle(
-                      color: size == 40
-                          ? Colors.white
-                          : const Color(0xFF101050),
-                    ),
-                    onSelected: (_) {},
-                  ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 15),
-          const Text(
-            'Color',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          const Row(
-            children: [
-              ColorDot(Color(0xFF30292A)),
-              ColorDot(Color(0xFFC53B24), selected: true),
-              ColorDot(Color(0xFF167DD8)),
-              ColorDot(Color(0xFF00A847)),
-              ColorDot(Color(0xFFFF615E)),
-            ],
-          ),
           const SizedBox(height: 25),
           Row(
             children: [
@@ -153,7 +124,13 @@ class ProductDetailsScreen extends StatelessWidget {
               Expanded(
                 flex: 2,
                 child: FilledButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await context.read<CartCubit>().add(product.id);
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Added to cart')),
+                    );
+                  },
                   icon: const Icon(Icons.add_shopping_cart),
                   label: const Text('Add to cart'),
                   style: FilledButton.styleFrom(
@@ -166,29 +143,6 @@ class ProductDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
-    ),
-  );
-}
-
-class ColorDot extends StatelessWidget {
-  const ColorDot(this.color, {super.key, this.selected = false});
-  final Color color;
-  final bool selected;
-  @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.only(right: 10),
-    width: 31,
-    height: 31,
-    decoration: BoxDecoration(
-      color: color,
-      shape: BoxShape.circle,
-      border: selected ? Border.all(color: Colors.white, width: 3) : null,
-      boxShadow: [
-        BoxShadow(
-          color: selected ? AppColors.blue : Colors.transparent,
-          spreadRadius: 2,
-        ),
-      ],
     ),
   );
 }

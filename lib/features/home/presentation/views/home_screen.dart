@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/constants/app_assets.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../auth/data/auth_repository.dart';
-import '../../../auth/presentation/views/sign_in_screen.dart';
+import '../../../../core/widgets/route_bottom_navigation.dart';
 import '../../../categories/presentation/views/categories_screen.dart';
+import '../../../categories/data/models/category.dart';
+import '../../../categories/data/repositories/categories_repository.dart';
+import '../../../cart/presentation/views/cart_screen.dart';
 import '../../../products/data/models/product.dart';
 import '../../../products/data/repositories/products_repository.dart';
 import '../../../products/presentation/views/product_details_screen.dart';
+import '../../../products/presentation/views/search_screen.dart';
+import '../../../wishlist/presentation/view_model/wishlist_cubit.dart';
+import '../../../wishlist/presentation/view_model/wishlist_state.dart';
+import '../../../wishlist/presentation/views/wishlist_screen.dart';
+import '../../../profile/presentation/views/profile_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    context.read<WishlistCubit>().load();
+  }
 
   @override
   Widget build(BuildContext context) => Directionality(
@@ -23,8 +42,8 @@ class HomeScreen extends StatelessWidget {
           children: [
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 24),
-                children: const [
+                padding: EdgeInsets.fromLTRB(14.w, 14.h, 14.w, 24.h),
+                children: [
                   _TopBar(),
                   SizedBox(height: 14),
                   _SearchBar(),
@@ -55,8 +74,13 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Image.asset(AppAssets.routeLogoBlue, width: 86),
-      Image.asset(AppAssets.cartIcon, width: 24),
+      Image.asset(AppAssets.routeLogoBlue, width: 86.w),
+      IconButton(
+        onPressed: () => Navigator.of(
+          context,
+        ).push(MaterialPageRoute<void>(builder: (_) => const CartScreen())),
+        icon: Image.asset(AppAssets.cartIcon, width: 24.w),
+      ),
     ],
   );
 }
@@ -65,6 +89,14 @@ class _SearchBar extends StatelessWidget {
   const _SearchBar();
   @override
   Widget build(BuildContext context) => TextField(
+    onSubmitted: (value) {
+      if (value.trim().isNotEmpty)
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => SearchScreen(initialQuery: value.trim()),
+          ),
+        );
+    },
     decoration: InputDecoration(
       prefixIcon: const Icon(Icons.search, color: AppColors.blue),
       hintText: 'what do you search for?',
@@ -88,7 +120,7 @@ class _PromotionBanner extends StatelessWidget {
   Widget build(BuildContext context) => ClipRRect(
     borderRadius: BorderRadius.circular(12),
     child: SizedBox(
-      height: 146,
+      height: 176.h,
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -174,52 +206,65 @@ class _SectionHeader extends StatelessWidget {
 
 class _CategoriesList extends StatelessWidget {
   const _CategoriesList();
-  static const _items = [
-    'Women’s\nfashion',
-    'men’s\nfashion',
-    'Laptops &\nElectronics',
-    'Baby &\nToys',
-    'Beauty',
-    'Headphones',
-    'Skincare',
-    'Cameras',
-  ];
-  static const _images = [
-    AppAssets.categoryWomensFashion,
-    AppAssets.categoryMensFashion,
-    AppAssets.categoryLaptops,
-    AppAssets.categoryBaby,
-    AppAssets.categoryBeauty,
-    AppAssets.categoryHeadphones,
-    AppAssets.categorySkincare,
-    AppAssets.categoryCameras,
-  ];
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 111,
-    child: ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: _items.length,
-      separatorBuilder: (_, _) => const SizedBox(width: 13),
-      itemBuilder: (_, index) => SizedBox(
-        width: 68,
-        child: Column(
-          children: [
-            CircleAvatar(
-              radius: 31,
-              backgroundColor: const Color(0xFFF0E7DF),
-              backgroundImage: AssetImage(_images[index]),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              _items[index],
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 9, color: Color(0xFF101050)),
-            ),
-          ],
+  Widget build(BuildContext context) => FutureBuilder<List<Category>>(
+    future: CategoriesRepository().getCategories(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      if (snapshot.hasError) {
+        return const SizedBox.shrink();
+      }
+      final categories = snapshot.data!.take(8).toList();
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: categories.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 4,
+          mainAxisSpacing: 12.h,
+          crossAxisSpacing: 4.w,
+          childAspectRatio: .72,
         ),
-      ),
-    ),
+        itemBuilder: (_, index) {
+          final category = categories[index];
+          return InkWell(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    CategoriesScreen(initialCategoryId: category.id),
+              ),
+            ),
+            child: Column(
+              children: [
+                CircleAvatar(
+                  radius: 34.r,
+                  backgroundColor: const Color(0xFFF0E7DF),
+                  backgroundImage: NetworkImage(category.image),
+                ),
+                SizedBox(height: 5.h),
+                Text(
+                  category.name,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    color: const Color(0xFF101050),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    },
   );
 }
 
@@ -294,16 +339,24 @@ class _ProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const Positioned(
+                Positioned(
                   top: 8,
                   right: 8,
-                  child: CircleAvatar(
-                    radius: 14,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.favorite_border,
-                      color: AppColors.blue,
-                      size: 18,
+                  child: BlocBuilder<WishlistCubit, WishlistState>(
+                    builder: (context, state) => InkWell(
+                      onTap: () =>
+                          context.read<WishlistCubit>().toggle(product.id),
+                      child: CircleAvatar(
+                        radius: 14,
+                        backgroundColor: Colors.white,
+                        child: Icon(
+                          state.contains(product.id)
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: AppColors.blue,
+                          size: 18,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -370,73 +423,17 @@ class _ProductCard extends StatelessWidget {
 class _BottomNavigation extends StatelessWidget {
   const _BottomNavigation();
   @override
-  Widget build(BuildContext context) => Container(
-    height: 66,
-    decoration: const BoxDecoration(
-      color: AppColors.blue,
-      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        const _NavIcon(asset: AppAssets.homeIcon, selected: true),
-        _NavIcon(
-          asset: AppAssets.categoriesIcon,
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute<void>(builder: (_) => const CategoriesScreen()),
-          ),
-        ),
-        const _NavIcon(asset: AppAssets.favouritesIcon),
-        _NavIcon(
-          asset: AppAssets.profileIcon,
-          onTap: () => _showAccountSheet(context),
-        ),
-      ],
-    ),
-  );
-}
-
-void _showAccountSheet(BuildContext context) {
-  showModalBottomSheet<void>(
-    context: context,
-    builder: (sheetContext) => SafeArea(
-      child: ListTile(
-        leading: const Icon(Icons.logout, color: AppColors.blue),
-        title: const Text('Sign out'),
-        onTap: () async {
-          await sheetContext.read<AuthRepository>().signOut();
-          if (!sheetContext.mounted) return;
-          Navigator.of(sheetContext).pushAndRemoveUntil(
-            MaterialPageRoute<void>(builder: (_) => const SignInScreen()),
-            (_) => false,
-          );
-        },
-      ),
-    ),
-  );
-}
-
-class _NavIcon extends StatelessWidget {
-  const _NavIcon({required this.asset, this.selected = false, this.onTap});
-  final String asset;
-  final bool selected;
-  final VoidCallback? onTap;
-  @override
-  Widget build(BuildContext context) => InkWell(
-    onTap: onTap,
-    borderRadius: BorderRadius.circular(20),
-    child: Container(
-      width: 33,
-      height: 33,
-      padding: const EdgeInsets.all(7),
-      decoration: BoxDecoration(
-        color: selected ? Colors.white : Colors.transparent,
-        shape: BoxShape.circle,
-      ),
-      child: Image.asset(
-        asset,
-        color: selected ? AppColors.blue : Colors.white,
-      ),
-    ),
+  Widget build(BuildContext context) => RouteBottomNavigation(
+    selectedIndex: 0,
+    onHome: () {},
+    onCategories: () => Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const CategoriesScreen())),
+    onWishlist: () => Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const WishlistScreen())),
+    onProfile: () => Navigator.of(
+      context,
+    ).push(MaterialPageRoute<void>(builder: (_) => const ProfileScreen())),
   );
 }

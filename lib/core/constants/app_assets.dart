@@ -16,4 +16,14 @@ abstract final class AppAssets {
   static const categoryWomensFashion =
       'assets/images/category_womens_fashion.jpg';
   static const categoryLaptops = 'assets/images/category_laptops.jpg';
+  static const womensFashionBanner = 'assets/images/womens_fashion_banner.jpg';
+  static const subcategoryWatches = 'assets/images/subcategory_watches.jpg';
+  static const subcategoryEyewear = 'assets/images/subcategory_eyewear.jpg';
+  static const subcategoryFootwear = 'assets/images/subcategory_footwear.jpg';
+  static const subcategoryTshirts = 'assets/images/subcategory_tshirts.jpg';
+  static const subcategoryBags = 'assets/images/subcategory_bags.jpg';
+  static const subcategoryPajamas = 'assets/images/subcategory_pajamas.jpg';
+  static const subcategorySkirts = 'assets/images/subcategory_skirts.jpg';
+  static const subcategoryJeans = 'assets/images/subcategory_jeans.jpg';
+  static const subcategoryDresses = 'assets/images/subcategory_dresses.jpg';
 }
