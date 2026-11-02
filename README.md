@@ -4,17 +4,32 @@ A polished Flutter e-commerce application powered by the Route API. It offers an
 
 ## Preview
 
+### 1. Authentication
+
+<p align="center">
+  <img src="docs/screenshots/sign_in.png" width="30%" />
+  <img src="docs/screenshots/sign_up.png" width="30%" />
+</p>
+
+### 2. Browse products
+
 <p align="center">
   <img src="docs/screenshots/home.png" width="22%" />
   <img src="docs/screenshots/categories.png" width="22%" />
-  <img src="docs/screenshots/cart.png" width="22%" />
-  <img src="docs/screenshots/wishlist.png" width="22%" />
 </p>
 
+### 3. Cart and checkout
+
 <p align="center">
+  <img src="docs/screenshots/cart.png" width="22%" />
+  <img src="docs/screenshots/shipping_address.png" width="22%" />
+</p>
+
+### 4. Personal area
+
+<p align="center">
+  <img src="docs/screenshots/wishlist.png" width="22%" />
   <img src="docs/screenshots/profile.png" width="22%" />
-  <img src="docs/screenshots/sign_in.png" width="22%" />
-  <img src="docs/screenshots/sign_up.png" width="22%" />
 </p>
 
 ## Features
