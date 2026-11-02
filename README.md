@@ -1,29 +1,89 @@
-# e-coomerce
+# Route E-Commerce App
 
-أساس متجر Flutter بشاشة عربية متجاوبة وMaterial 3.
+A polished Flutter e-commerce application powered by the Route API. It offers an end-to-end shopping experience with authentication, browsing, category filtering, favourites, cart management, checkout, and local caching.
 
-## التشغيل
+## Preview
 
-```sh
+<p align="center">
+  <img src="docs/screenshots/home.png" width="22%" />
+  <img src="docs/screenshots/categories.png" width="22%" />
+  <img src="docs/screenshots/cart.png" width="22%" />
+  <img src="docs/screenshots/wishlist.png" width="22%" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/profile.png" width="22%" />
+  <img src="docs/screenshots/sign_in.png" width="22%" />
+  <img src="docs/screenshots/sign_up.png" width="22%" />
+</p>
+
+## Features
+
+- Secure sign in and sign up with persistent sessions.
+- Product discovery, category browsing, product details, and keyword search.
+- Server-backed cart: add products, update quantities, remove items, and cash checkout.
+- Server-backed wishlist with a dedicated favourites screen.
+- Profile overview and sign out flow.
+- Hive caching for cart and wishlist, with API refresh in the background.
+- Responsive UI using `flutter_screenutil` and Poppins typography.
+
+## Tech Stack
+
+| Area | Technology |
+| --- | --- |
+| Framework | Flutter / Dart |
+| State management | BLoC / Cubit (`flutter_bloc`) |
+| Networking | `http` |
+| Local persistence | Hive + SharedPreferences |
+| API | [Route E-Commerce API](https://ecommerce.routemisr.com/) |
+| UI | Google Fonts (Poppins), responsive layout |
+
+## Architecture
+
+The project follows a feature-first Clean Architecture / MVVM-inspired structure:
+
+```text
+lib/
+├── app/                 # App bootstrap, theme, providers
+├── core/                # Shared colors, assets, widgets
+└── features/
+    ├── auth/            # Authentication and session handling
+    ├── categories/      # Categories and filtering
+    ├── products/        # Products, search, details
+    ├── cart/            # Cart and checkout
+    ├── wishlist/        # Favourite products
+    └── profile/         # User profile
+```
+
+## API Integration
+
+The app integrates with Route API for:
+
+- Authentication
+- Products and search
+- Categories
+- Cart operations and checkout
+- Wishlist operations
+- User profile updates
+
+## Getting Started
+
+```bash
+git clone https://github.com/rwasei74/E-commerce.git
+cd E-commerce
 flutter pub get
-flutter run -d chrome
+flutter run
 ```
 
-للهاتف: flutter devices ثم flutter run -d DEVICE_ID.
-ملفات Android وiOS والويب جاهزة. بناء iOS يتطلب macOS وXcode.
+> Ensure USB debugging is enabled when running on a physical Android device.
 
-## البنية
+## Quality Checks
 
-- lib/main.dart: نقطة التشغيل.
-- lib/app/app.dart: إعداد التطبيق.
-- lib/core/theme/app_theme.dart: المظهر.
-- lib/features/home/presentation/home_screen.dart: الشاشة الرئيسية.
-
-الكتالوج فارغ حتى ربط المنتجات. لا يوجد خادم أو تسجيل دخول أو سلة أو دفع في هذا الأساس.
-
-## التحقق
-
-```sh
+```bash
 flutter analyze
-flutter build web
+flutter test
 ```
+
+## Author
+
+Built as a Flutter e-commerce project using the Route API.
